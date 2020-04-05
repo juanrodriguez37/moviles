@@ -121,16 +121,21 @@ public class LoginActivity extends AppCompatActivity {
         if (requestCode == REQUEST_SIGNUP) {
             if (resultCode == RESULT_OK) {
 
-                // TODO: Implement successful signup logic here
-                // By default we just finish the Activity and log them in automatically
+
+                Intent in = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(in);
+
+
                 this.finish();
+                Intent ins = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(ins);
             }
         }
     }
 
     @Override
     public void onBackPressed() {
-        // Disable going back to the MainActivity
+        
         moveTaskToBack(true);
     }
 
