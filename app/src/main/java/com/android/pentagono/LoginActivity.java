@@ -117,6 +117,7 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_SIGNUP) {
             if (resultCode == RESULT_OK) {
 
@@ -135,7 +136,13 @@ public class LoginActivity extends AppCompatActivity {
 
     public void onLoginSuccess() {
         _loginButton.setEnabled(true);
+        Intent in = new Intent(LoginActivity.this, MainActivity.class);
+        startActivity(in);
         this.finish();
+        Intent ins = new Intent(LoginActivity.this, MainActivity.class);
+        startActivity(ins);
+
+
     }
 
     public void onLoginFailed() {
