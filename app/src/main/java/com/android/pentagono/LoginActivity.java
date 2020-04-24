@@ -34,13 +34,13 @@ public class LoginActivity extends AppCompatActivity {
     Button _loginButton;
     @BindView(R.id.link_signup)
     TextView _signupLink;
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
-        
+
         _loginButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -89,12 +89,14 @@ public class LoginActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
+                            onLoginSuccess();
                             Log.d(TAG, "createUserWithEmail:success");
 
                         } else {
                             // If sign in fails, display a message to the user.
                             Toast.makeText(LoginActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
+                            
                             onLoginFailed();
 
                         }
@@ -106,7 +108,7 @@ public class LoginActivity extends AppCompatActivity {
                 new Runnable() {
                     public void run() {
                         // On complete call either onLoginSuccess or onLoginFailed
-                        onLoginSuccess();
+                        //onLoginSuccess();
                         // onLoginFailed();
                         progressDialog.dismiss();
                     }
@@ -135,7 +137,7 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        
+
         moveTaskToBack(true);
     }
 
