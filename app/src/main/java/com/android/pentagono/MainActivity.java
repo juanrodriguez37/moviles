@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
     EditText editPDFName;
     Button btn_upload;
+    Button btn_new_home;
 
     StorageReference storageReference;
     DatabaseReference databaseReference;
@@ -41,9 +42,21 @@ public class MainActivity extends AppCompatActivity {
 
         editPDFName = (EditText)findViewById(R.id.txt_pdfName);
         btn_upload = (Button)findViewById(R.id.btn_upload);
+        btn_new_home = (Button)findViewById(R.id.btn_view_2);
 
         storageReference = FirebaseStorage.getInstance().getReference();
         databaseReference = FirebaseDatabase.getInstance().getReference("uploads");
+
+
+        btn_new_home.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+
+                startActivity(new Intent(getApplicationContext(),HomeActivity.class));
+
+            }
+        });
 
         btn_upload.setOnClickListener(new View.OnClickListener() {
             @Override
