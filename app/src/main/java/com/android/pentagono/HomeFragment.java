@@ -1,5 +1,6 @@
 package com.android.pentagono;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -33,6 +35,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 import ss.com.bannerslider.Slider;
 
@@ -49,6 +52,11 @@ public class HomeFragment extends Fragment implements IBannerLoadListener, ILook
     Slider banner_slider;
     @BindView(R.id.recycler_look_book)
     RecyclerView recycler_look_book;
+    @OnClick(R.id.card_view_booking)
+    void booking() {
+        startActivity(new Intent(getActivity(), BookingActivity.class));
+    }
+
 
     //Firestore
     CollectionReference bannerRef,lookbookRef;
