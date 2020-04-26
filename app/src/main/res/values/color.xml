@@ -14,4 +14,10 @@
   <color name="base">#AAAAAA</color>
   <color name="iron">#CCCCCC</color>
   <color name="white">#FFFFFF</color>
+  <color name="tomato">#FF674D</color>
+  <color name="corn">#FFEC51</color>
+  <color name="pink">#FF6392</color>
+  <color name="turquesa">#79C7C5</color>
+
+
 </resources>

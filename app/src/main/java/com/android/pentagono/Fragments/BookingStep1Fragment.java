@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.pentagono.Adapter.MySalonAdapter;
+import com.android.pentagono.Common.Common;
 import com.android.pentagono.Common.SpacesItemDecoration;
 import com.android.pentagono.Interface.IAllSalonLoadListener;
 import com.android.pentagono.Interface.IBranchLoadListener;
@@ -134,6 +135,7 @@ public class BookingStep1Fragment extends Fragment implements IAllSalonLoadListe
 
     private void loadBranchOfCourses(String toString) {
         dialog.show();
+        Common.subject = toString;
         branchRef = FirebaseFirestore.getInstance()
                 .collection("courses")
                 .document(toString)
@@ -146,10 +148,12 @@ public class BookingStep1Fragment extends Fragment implements IAllSalonLoadListe
                 {
                     for (QueryDocumentSnapshot documentSnapshot:task.getResult())
                     {
-                        list.add(documentSnapshot.toObject(Course.class));
-                        iBranchLoadListener.onBranchLoadSuccess(list);
+                        Course course = documentSnapshot.toObject(Course.class);
+                        course.setCourse_id(documentSnapshot.getId());
+                        list.add(course);
 
                     }
+                    iBranchLoadListener.onBranchLoadSuccess(list);
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {

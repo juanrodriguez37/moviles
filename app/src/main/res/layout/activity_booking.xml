@@ -18,12 +18,12 @@
         app:sv_selectedCircleColor="@color/cardview_dark_background"
         app:sv_selectedStepNumberColor="@color/white"
         app:sv_selectedTextColor="@color/black"
-        app:sv_doneCircleColor="@color/accent"
-        app:sv_doneStepLineColor="@color/accent"
-        app:sv_doneTextColor="@color/white"
+        app:sv_doneCircleColor="@color/black"
+        app:sv_doneStepLineColor="@color/black"
+        app:sv_doneTextColor="@color/black"
         app:sv_doneStepMarkColor="@color/white"
         />
-   <androidx.viewpager.widget.ViewPager
+   <com.android.pentagono.Common.NonSwipeViewPager
        android:layout_width="match_parent"
        android:layout_height="match_parent"
        android:id="@+id/view_pager"
@@ -57,7 +57,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/btn_next_step"
             android:text="Next"
-            android:enabled="true"
+            android:enabled="false"
             android:layout_marginRight="4dp"
             android:layout_weight="1"
             android:layout_centerHorizontal= "true"
