@@ -89,6 +89,7 @@ public class LoginActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
+                            progressDialog.dismiss();
                             onLoginSuccess();
                             Log.d(TAG, "createUserWithEmail:success");
 
@@ -96,7 +97,7 @@ public class LoginActivity extends AppCompatActivity {
                             // If sign in fails, display a message to the user.
                             Toast.makeText(LoginActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
-
+                            progressDialog.dismiss();
                             onLoginFailed();
 
                         }
@@ -112,7 +113,7 @@ public class LoginActivity extends AppCompatActivity {
                         // onLoginFailed();
                         progressDialog.dismiss();
                     }
-                }, 1000);
+                }, 500);
 
     }
 
@@ -150,6 +151,7 @@ public class LoginActivity extends AppCompatActivity {
         Intent in = new Intent(LoginActivity.this, MainActivity.class);
         startActivity(in);
         this.finish();
+
         Intent ins = new Intent(LoginActivity.this, MainActivity.class);
         startActivity(ins);
 
