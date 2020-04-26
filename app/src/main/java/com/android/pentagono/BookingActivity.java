@@ -74,12 +74,27 @@ public class BookingActivity extends AppCompatActivity {
                if(Common.currentCourse != null)
                    loadProfessorByCourse(Common.currentCourse.getCourse_id());
            }
+           else if(Common.step == 2)
+           {
+               if(Common.currentProfesor != null)
+               {
+                 loadTimeSlotOfProfesor(Common.currentProfesor.getBarberId());
+               }
+           }
            viewPager.setCurrentItem(Common.step);
 
        }
 
 
      }
+
+    private void loadTimeSlotOfProfesor(String barberId) {
+        Intent intent = new Intent(Common.KEY_DISPLAY_TIME_SLOT);
+        localBroadcastManager.sendBroadcast(intent);
+
+
+
+    }
 
     private void loadProfessorByCourse(String course_id) {
         ///courses/apo/branch/0SNfqvPbqbIDcqK5DDMx/profesores
@@ -132,7 +147,14 @@ public class BookingActivity extends AppCompatActivity {
     private BroadcastReceiver buttonNextReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-           Common.currentCourse = intent.getParcelableExtra(Common.KEY_SALON_STORE);
+
+            int step = intent.getIntExtra(Common.KEY_STEP, 0);
+            if(step == 1)
+                Common.currentCourse = intent.getParcelableExtra(Common.KEY_SALON_STORE);
+            else if(step == 2)
+                Common.currentProfesor = intent.getParcelableExtra(Common.KEY_BARBER_SELECTED);
+
+
            btn_next_step.setEnabled(true);
            setColorButton();
         }
@@ -181,7 +203,7 @@ public class BookingActivity extends AppCompatActivity {
                  else {
                      btn_previous_step.setEnabled(true);
                  }
-
+                btn_next_step.setEnabled(false);
                  setColorButton();
             }
 
