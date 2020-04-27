@@ -1,10 +1,17 @@
 package com.android.pentagono.Fragments;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.CalendarContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,27 +26,35 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.android.pentagono.Common.Common;
 import com.android.pentagono.Model.BookingInformation;
 import com.android.pentagono.R;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
-import org.w3c.dom.Text;
-
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import dmax.dialog.SpotsDialog;
 
 public class BookingStep4Fragment extends Fragment {
 
 
     SimpleDateFormat simpleDateFormat;
     LocalBroadcastManager localBroadcastManager;
+
+    AlertDialog dialog;
 
     @BindView(R.id.txt_booking_profesor_text)
     TextView txt_booking_profesor_text;
@@ -58,20 +73,37 @@ public class BookingStep4Fragment extends Fragment {
 
     @OnClick(R.id.btn_confirm)
             void confirmBooking() {
+        dialog.show();
+        String startTime = Common.convertTimeSlotToString(Common.currentTimeSlot);
+        String[] convertTime = startTime.split("-");
+        String[] startTimeConvert = convertTime[0].split(":");
+        int startHourInt = Integer.parseInt(startTimeConvert[0].trim());
+        int startMinInt = Integer.parseInt(startTimeConvert[1].trim());
+
+        Calendar bookingDateWithourHouse = Calendar.getInstance();
+        bookingDateWithourHouse.setTimeInMillis(Common.bookingDate.getTimeInMillis());
+        bookingDateWithourHouse.set(Calendar.HOUR_OF_DAY,startHourInt);
+        bookingDateWithourHouse.set(Calendar.MINUTE,startMinInt);
+
+        Timestamp timestamp = new Timestamp(bookingDateWithourHouse.getTime());
+
 
         BookingInformation bookingInformation = new BookingInformation();
+        bookingInformation.setTimestamp(timestamp);
         bookingInformation.setBarberid(Common.currentProfesor.getBarberId());
         bookingInformation.setBarberName(Common.currentProfesor.getName());
 
         //bookingInformation.setCustomerName(Common.currentUser.getName());
         //bookingInformation.setCustomerPhone(Common.currentUser.getPhoneNumber());
+        bookingInformation.setDone(false);
+
         bookingInformation.setCustomerName("Student");
         bookingInformation.setCustomerPhone("+57 3008494164");
         bookingInformation.setSalonId(Common.currentCourse.getCourse_id());
         bookingInformation.setSalonAddress(Common.currentCourse.getAddress());
         bookingInformation.setSalonName(Common.currentCourse.getName());
         bookingInformation.setTime(new StringBuilder(Common.convertTimeSlotToString(Common.currentTimeSlot))
-                .append(" at ").append(simpleDateFormat.format(Common.currentDate.getTime())).toString());
+                .append(" at ").append(simpleDateFormat.format(bookingDateWithourHouse.getTime())).toString());
         bookingInformation.setSlot(Long.valueOf(Common.currentTimeSlot));
 
         DocumentReference bookingDate = FirebaseFirestore.getInstance()
@@ -81,16 +113,14 @@ public class BookingStep4Fragment extends Fragment {
                 .document(Common.currentCourse.getCourse_id())
                 .collection("profesores")
                 .document(Common.currentProfesor.getBarberId())
-                .collection(Common.simpleDateFormat.format(Common.currentDate.getTime()))
+                .collection(Common.simpleDateFormat.format(Common.bookingDate.getTime()))
                 .document(String.valueOf(Common.currentTimeSlot));
 
         bookingDate.set(bookingInformation)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        resetStaticData();
-                        getActivity().finish();
-                        Toast.makeText(getContext(),"Thank you for using our services",Toast.LENGTH_SHORT).show();
+                        addToUserBooking(bookingInformation);
                     }
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -101,12 +131,170 @@ public class BookingStep4Fragment extends Fragment {
 
     }
 
+    private void addToUserBooking(BookingInformation bookingInformation) {
+
+        CollectionReference userbooking = FirebaseFirestore.getInstance()
+                .collection("User")
+                .document(Common.currentUser.getUser_id())
+                .collection("bookings");
+
+        userbooking.whereEqualTo("done",false)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.getResult().isEmpty())
+                        {
+                            userbooking.document()
+                                    .set(bookingInformation)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            if(dialog.isShowing())
+                                            {
+                                                dialog.dismiss();
+                                            }
+
+                                            addToCalendar(Common.bookingDate,
+                                               Common.convertTimeSlotToString(Common.currentTimeSlot));
+                                            resetStaticData();
+                                            getActivity().finish();
+                                            Toast.makeText(getContext(),"Thank you for using our services",Toast.LENGTH_SHORT).show();
+
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    if(dialog.isShowing())
+                                    {
+                                        dialog.dismiss();
+                                    }
+                                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                        else
+                        {
+                            if(dialog.isShowing())
+                            {
+                                dialog.dismiss();
+                            }
+                            resetStaticData();
+                            getActivity().finish();
+                            Toast.makeText(getContext(),"Thank you for using our services",Toast.LENGTH_SHORT).show();
+
+                        }
+                    }
+                });
+
+
+    }
+
+    private void addToCalendar(Calendar bookingDate, String startDate) {
+
+        String startTime = Common.convertTimeSlotToString(Common.currentTimeSlot);
+        String[] convertTime = startTime.split("-");
+        String[] startTimeConvert = convertTime[0].split(":");
+        int startHourInt = Integer.parseInt(startTimeConvert[0].trim());
+        int startMinInt = Integer.parseInt(startTimeConvert[1].trim());
+
+        String[] endTimeConvert = convertTime[1].split(":");
+        int endHourInt = Integer.parseInt(endTimeConvert[0].trim());
+        int endMinInt = Integer.parseInt(endTimeConvert[1].trim());
+
+        Calendar startEvent = Calendar.getInstance();
+        startEvent.setTimeInMillis(bookingDate.getTimeInMillis());
+        startEvent.set(Calendar.HOUR_OF_DAY,startHourInt);
+        startEvent.set(Calendar.MINUTE,startMinInt);
+
+        Calendar endEvent = Calendar.getInstance();
+        endEvent.setTimeInMillis(bookingDate.getTimeInMillis());
+        endEvent.set(Calendar.HOUR_OF_DAY,endHourInt);
+        endEvent.set(Calendar.MINUTE,endMinInt);
+
+        SimpleDateFormat calendarDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+        String startEventTime = calendarDateFormat.format(startEvent.getTime());
+        String endEventTime = calendarDateFormat.format(endEvent.getTime());
+
+        addToDeviceCalendar(startEventTime, endEventTime, "Pentagono Online Appointment",
+                new StringBuilder("Appointment from ")
+        .append(startTime)
+        .append( " with ")
+        .append(Common.currentProfesor.getName())                
+        .append(" Topic: " )
+        .append(Common.currentCourse.getName()).toString());
+
+
+
+
+    }
+
+    private void addToDeviceCalendar(String startEventTime, String endEventTime, String pentagono_online_appointment, String appointment_from_) {
+        SimpleDateFormat calendarDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+        try {
+            Date start = calendarDateFormat.parse(startEventTime);
+            Date end = calendarDateFormat.parse(endEventTime);
+
+            ContentValues event = new ContentValues();
+
+            event.put(CalendarContract.Events.CALENDAR_ID,getCalendar(getContext()));
+            event.put(CalendarContract.Events.TITLE,pentagono_online_appointment);
+            event.put(CalendarContract.Events.DESCRIPTION,appointment_from_);
+
+            event.put(CalendarContract.Events.DTSTART,start.getTime());
+            event.put(CalendarContract.Events.DTEND, end.getTime());
+            event.put(CalendarContract.Events.ALL_DAY,0);
+            event.put(CalendarContract.Events.HAS_ALARM,1);
+
+            String timeZone = TimeZone.getDefault().getID();
+            event.put(CalendarContract.Events.EVENT_TIMEZONE,timeZone);
+
+
+            Uri calendars;
+            if(Build.VERSION.SDK_INT >= 8)
+                calendars = Uri.parse("content://com.android.calendar/calendars");
+            else
+                 calendars = Uri.parse("content://calendar/events");
+
+            getActivity().getContentResolver().insert(calendars,event);
+
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private String getCalendar(Context context) {
+        String gmailCalendar = "";
+        String projection[] = {"_id","calendar_displayName"};
+        Uri calendars = Uri.parse("content://com.android.calendar/calendars");
+        ContentResolver contentResolver = context.getContentResolver();
+        Cursor managedCursor = contentResolver.query(calendars,projection,null,null,null );
+        if(managedCursor.moveToFirst())
+        {
+            String calName;
+            int nameCol = managedCursor.getColumnIndex(projection[1]);
+            int idCol = managedCursor.getColumnIndex(projection[0]);
+            do {
+                calName = managedCursor.getString(nameCol);
+                if(calName.contains("@gmail.com"))
+                {
+                    gmailCalendar = managedCursor.getString(idCol);
+                    break;
+                }
+            } while (managedCursor.moveToNext());
+            managedCursor.close();
+        }
+        return gmailCalendar;
+    }
+
     private void resetStaticData() {
         Common.step = 0;
         Common.currentTimeSlot= -1;
         Common.currentCourse = null;
         Common.currentProfesor = null;
-        Common.currentDate.add(Calendar.DATE,0);
+        Common.bookingDate.add(Calendar.DATE,0);
     }
 
 
@@ -122,7 +310,7 @@ public class BookingStep4Fragment extends Fragment {
     private void setData() {
         txt_booking_profesor_text.setText((Common.currentProfesor.getName()));
         txt_booking_time_text.setText(new StringBuilder(Common.convertTimeSlotToString(Common.currentTimeSlot))
-        .append(" at ").append(simpleDateFormat.format(Common.currentDate.getTime()))) ;
+        .append(" at ").append(simpleDateFormat.format(Common.bookingDate.getTime()))) ;
         txt_course_name.setText(Common.currentCourse.getName());
         txt_location.setText(Common.currentCourse.getAddress());
         txt_phone.setText(Common.currentCourse.getPhone());
@@ -148,6 +336,8 @@ public class BookingStep4Fragment extends Fragment {
         localBroadcastManager = LocalBroadcastManager.getInstance(getContext());
         localBroadcastManager.registerReceiver(confirmBookingReceiver,
                 new IntentFilter(Common.KEY_CONFIRM_BOOKING));
+        dialog = new SpotsDialog.Builder().setContext(getContext()).setCancelable(false)
+                .build();
     }
 
     @Override

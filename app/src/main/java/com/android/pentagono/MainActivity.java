@@ -23,6 +23,8 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import butterknife.BindView;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
 
     StorageReference storageReference;
     DatabaseReference databaseReference;
+
+
     
 
     @Override

@@ -1,10 +1,14 @@
 package com.android.pentagono.Model;
 
+import com.google.firebase.Timestamp;
+
 public class BookingInformation {
 
     private String customerName, customerPhone, time, barberid,
     barberName,salonId, salonName, salonAddress;
     private Long slot;
+    private Timestamp timestamp;
+    private boolean done;
 
     public BookingInformation() {
     }
@@ -91,5 +95,21 @@ public class BookingInformation {
 
     public void setSlot(Long slot) {
         this.slot = slot;
+    }
+
+    public Timestamp getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Timestamp timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public boolean isDone() {
+        return done;
+    }
+
+    public void setDone(boolean done) {
+        this.done = done;
     }
 }

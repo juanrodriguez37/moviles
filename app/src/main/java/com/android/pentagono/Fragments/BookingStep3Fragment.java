@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Space;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -199,9 +198,9 @@ public class BookingStep3Fragment extends Fragment implements ITimeSlotLoadListe
         horizontalCalendar.setCalendarListener(new HorizontalCalendarListener() {
             @Override
             public void onDateSelected(Calendar date, int position) {
-                if(Common.currentDate.getTimeInMillis() != date.getTimeInMillis())
+                if(Common.bookingDate.getTimeInMillis() != date.getTimeInMillis())
                 {
-                    Common.currentDate = date;
+                    Common.bookingDate = date;
                     loadAvailableTimeSlotOfBarber(Common.currentProfesor.getBarberId(), simpleDateFormat.format(date.getTime()));
                 }
             }
