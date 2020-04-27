@@ -1,5 +1,6 @@
 package com.android.pentagono;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,6 +18,13 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -38,6 +46,20 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Dexter.withActivity(this).withPermissions(new String[]{
+                Manifest.permission.READ_CALENDAR,
+                Manifest.permission.WRITE_CALENDAR
+        }).withListener(new MultiplePermissionsListener() {
+            @Override
+            public void onPermissionsChecked(MultiplePermissionsReport report) {
+
+            }
+
+            @Override
+            public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+
+            }
+        }).check();
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
 
@@ -125,12 +147,12 @@ public class LoginActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
 
 
-                Intent in = new Intent(LoginActivity.this, MainActivity.class);
+                Intent in = new Intent(LoginActivity.this, HomeActivity.class);
                 startActivity(in);
 
 
                 this.finish();
-                Intent ins = new Intent(LoginActivity.this, MainActivity.class);
+                Intent ins = new Intent(LoginActivity.this, HomeActivity.class);
                 startActivity(ins);
             }
         }
@@ -148,11 +170,11 @@ public class LoginActivity extends AppCompatActivity {
 
     public void onLoginSuccess() {
         _loginButton.setEnabled(true);
-        Intent in = new Intent(LoginActivity.this, MainActivity.class);
+        Intent in = new Intent(LoginActivity.this, HomeActivity.class);
         startActivity(in);
         this.finish();
 
-        Intent ins = new Intent(LoginActivity.this, MainActivity.class);
+        Intent ins = new Intent(LoginActivity.this, HomeActivity.class);
         startActivity(ins);
 
 

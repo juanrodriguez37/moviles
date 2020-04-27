@@ -56,6 +56,10 @@ public class HomeFragment extends Fragment implements IBannerLoadListener, ILook
     void booking() {
         startActivity(new Intent(getActivity(), BookingActivity.class));
     }
+    @OnClick(R.id.card_view_resources)
+            void resources() {
+        startActivity(new Intent(getActivity(),MainActivity.class));
+    }
 
 
     //Firestore

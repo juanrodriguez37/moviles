@@ -4,6 +4,12 @@ import android.content.Intent;
 
 import com.android.pentagono.Model.Course;
 import com.android.pentagono.Model.Profesor;
+import com.android.pentagono.Model.TimeSlot;
+import com.android.pentagono.Model.User;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 
 public class Common {
 
@@ -13,11 +19,18 @@ public class Common {
     public static final String KEY_DISPLAY_TIME_SLOT =  "TIME_SLOT";
     public static final String KEY_STEP = "STEP";
     public static final String KEY_BARBER_SELECTED = "PROFESOR_SELECTED";
+    public static final String DISABLE_TAG = "DISABLE";
+    public static final String KEY_TIME_SLOT = "TIME_SLOT";
+    public static final String KEY_CONFIRM_BOOKING = "CONFIRM_BOOKING";
     public static Course currentCourse;
     public static int step = 0;
     public static String subject = "";
     public static Profesor currentProfesor;
     public static final int TIME_SLOT_TOTAL = 20;
+    public static int currentTimeSlot = -1;
+    public static Calendar currentDate = Calendar.getInstance();
+    public static User currentUser;
+    public static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd_MM_yyyy");
 
     public static String convertTimeSlotToString(int i) {
         switch (i)
