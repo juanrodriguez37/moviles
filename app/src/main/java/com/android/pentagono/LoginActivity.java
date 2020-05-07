@@ -53,6 +53,9 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onPermissionsChecked(MultiplePermissionsReport report) {
 
+                setContentView(R.layout.activity_login);
+                ButterKnife.bind(LoginActivity.this);
+
             }
 
             @Override
@@ -60,8 +63,9 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         }).check();
-        setContentView(R.layout.activity_login);
-        ButterKnife.bind(this);
+
+
+
 
         _loginButton.setOnClickListener(new View.OnClickListener() {
 

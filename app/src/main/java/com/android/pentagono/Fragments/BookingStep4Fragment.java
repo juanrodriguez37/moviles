@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.CalendarContract;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -135,7 +136,7 @@ public class BookingStep4Fragment extends Fragment {
 
         CollectionReference userbooking = FirebaseFirestore.getInstance()
                 .collection("User")
-                .document(Common.currentUser.getUser_id())
+                .document("Jmf3G610qtmLMxCW2Wde")
                 .collection("bookings");
 
         userbooking.whereEqualTo("done",false)
@@ -252,7 +253,7 @@ public class BookingStep4Fragment extends Fragment {
 
             Uri calendars;
             if(Build.VERSION.SDK_INT >= 8)
-                calendars = Uri.parse("content://com.android.calendar/calendars");
+                calendars = Uri.parse("content://com.android.calendar/events");
             else
                  calendars = Uri.parse("content://calendar/events");
 
@@ -286,6 +287,7 @@ public class BookingStep4Fragment extends Fragment {
             } while (managedCursor.moveToNext());
             managedCursor.close();
         }
+        Log.d("calendarName",gmailCalendar);
         return gmailCalendar;
     }
 

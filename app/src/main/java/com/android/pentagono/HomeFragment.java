@@ -258,7 +258,7 @@ public class HomeFragment extends Fragment implements IBannerLoadListener, ILook
                 Calendar.getInstance().getTimeInMillis(), 0).toString();
         txt_time_remain.setText(dateRemain);
 
-        card_booking_info.setVisibility(View.GONE);
+        card_booking_info.setVisibility(View.VISIBLE);
 
     }
 
