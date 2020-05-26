@@ -11,13 +11,15 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.pentagono.Common.Common;
 import com.android.pentagono.Interface.IRecyclerItemSelectedListener;
+import com.android.pentagono.Model.EventBus.EnableNextButton;
 import com.android.pentagono.Model.Profesor;
 import com.android.pentagono.R;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -30,13 +32,11 @@ public class MyProfesorAdapter extends RecyclerView.Adapter<MyProfesorAdapter.My
     Context context;
     List<Profesor> profesorList;
     List<CardView> cardViewList;
-    LocalBroadcastManager localBroadcastManager;
 
     public MyProfesorAdapter(Context context, List<Profesor> profesorList){
         this.context = context;
         this.profesorList = profesorList;
         cardViewList = new ArrayList<>();
-        localBroadcastManager = LocalBroadcastManager.getInstance(context);
 
     }
 
@@ -74,10 +74,10 @@ public class MyProfesorAdapter extends RecyclerView.Adapter<MyProfesorAdapter.My
                     .getColor(android.R.color.holo_orange_dark)
             );
 
-            Intent intent = new Intent(Common.KEY_ENABLE_BUTTON_NEXT);
-            intent.putExtra(Common.KEY_BARBER_SELECTED,profesorList.get(pos));
-            intent.putExtra(Common.KEY_STEP, 2);
-            localBroadcastManager.sendBroadcast(intent);
+
+            //Event bus
+
+            EventBus.getDefault().postSticky(new EnableNextButton(2,profesorList.get(pos)));
         }
     });
     }

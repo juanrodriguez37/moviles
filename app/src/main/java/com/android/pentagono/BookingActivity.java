@@ -2,22 +2,25 @@ package com.android.pentagono;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.ViewPager;
 
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.EventLog;
 import android.widget.Button;
 import android.widget.Toast;
 
 import com.android.pentagono.Adapter.MyViewPagerAdapter;
 import com.android.pentagono.Common.Common;
 import com.android.pentagono.Common.NonSwipeViewPager;
+import com.android.pentagono.Model.EventBus.ConfirmBookingEvent;
+import com.android.pentagono.Model.EventBus.DisplayTimeSlotEvent;
+import com.android.pentagono.Model.EventBus.EnableNextButton;
+import com.android.pentagono.Model.EventBus.ProfesorDoneEvent;
 import com.android.pentagono.Model.Profesor;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -27,6 +30,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.shuhart.stepview.StepView;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +45,6 @@ import dmax.dialog.SpotsDialog;
 
 public class BookingActivity extends AppCompatActivity {
 
-    LocalBroadcastManager localBroadcastManager;
     AlertDialog dialog;
     CollectionReference profesorRef;
 
@@ -101,13 +107,14 @@ public class BookingActivity extends AppCompatActivity {
      }
 
     private void confirmBooking() {
-        Intent intent = new Intent(Common.KEY_CONFIRM_BOOKING);
-        localBroadcastManager.sendBroadcast(intent);
+
+        EventBus.getDefault().postSticky(new ConfirmBookingEvent(true));
     }
 
     private void loadTimeSlotOfProfesor(String barberId) {
-        Intent intent = new Intent(Common.KEY_DISPLAY_TIME_SLOT);
-        localBroadcastManager.sendBroadcast(intent);
+
+
+        EventBus.getDefault().postSticky(new DisplayTimeSlotEvent(true));
 
 
 
@@ -136,9 +143,8 @@ public class BookingActivity extends AppCompatActivity {
 
                                   profesores.add(profesor);
                              }
-                             Intent intent = new Intent(Common.KEY_BARBER_LOAD_DONE);
-                             intent.putParcelableArrayListExtra(Common.KEY_BARBER_LOAD_DONE,profesores);
-                             localBroadcastManager.sendBroadcast(intent);
+
+                             EventBus.getDefault().postSticky(new ProfesorDoneEvent(profesores));
 
                              dialog.dismiss();
 
@@ -161,30 +167,26 @@ public class BookingActivity extends AppCompatActivity {
     }
 
 
-    private BroadcastReceiver buttonNextReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
-            int step = intent.getIntExtra(Common.KEY_STEP, 0);
-            if(step == 1)
-                Common.currentCourse = intent.getParcelableExtra(Common.KEY_SALON_STORE);
-            else if(step == 2)
-                Common.currentProfesor = intent.getParcelableExtra(Common.KEY_BARBER_SELECTED);
-            else if(step == 3)
-                Common.currentTimeSlot = intent.getIntExtra(Common.KEY_TIME_SLOT, -1);
 
 
+    @Subscribe(sticky = true,threadMode = ThreadMode.MAIN)
+    public void setButtonNextReceiver(EnableNextButton event)
+    {
+        int step = event.getStep();
+        if(step == 1)
+            Common.currentCourse = event.getCourse();
+        else if(step == 2)
+            Common.currentProfesor = event.getProfesor();
+        else if(step == 3)
+            Common.currentTimeSlot = event.getTimeslot();
 
-            btn_next_step.setEnabled(true);
-           setColorButton();
-        }
-    };
 
-    @Override
-    protected void onDestroy() {
-        localBroadcastManager.unregisterReceiver(buttonNextReceiver);
-        super.onDestroy();
+
+        btn_next_step.setEnabled(true);
+        setColorButton();
     }
+
+
 
 
     @Override
@@ -195,9 +197,7 @@ public class BookingActivity extends AppCompatActivity {
 
         dialog = new SpotsDialog.Builder().setContext(this).build();
 
-        localBroadcastManager = LocalBroadcastManager.getInstance(this);
-        localBroadcastManager.registerReceiver(buttonNextReceiver,new IntentFilter(Common.KEY_ENABLE_BUTTON_NEXT));
-        
+
         setUpStepView();
         setColorButton();
 
@@ -261,4 +261,19 @@ public class BookingActivity extends AppCompatActivity {
         stepList.add("Confirm");
         stepView.setSteps(stepList);
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+
+    }
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+
+    }
+
 }

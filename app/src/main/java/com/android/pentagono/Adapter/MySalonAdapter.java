@@ -1,7 +1,6 @@
 package com.android.pentagono.Adapter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,13 +8,14 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.pentagono.Common.Common;
 import com.android.pentagono.Interface.IRecyclerItemSelectedListener;
 import com.android.pentagono.Model.Course;
+import com.android.pentagono.Model.EventBus.EnableNextButton;
 import com.android.pentagono.R;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,13 +25,11 @@ public class MySalonAdapter extends RecyclerView.Adapter<MySalonAdapter.MyViewHo
     Context context;
     List<Course> courseList;
     List<CardView> cardViewList;
-    LocalBroadcastManager localBroadcastManager;
 
     public MySalonAdapter(Context context, List<Course> courseList) {
         this.context = context;
         this.courseList = courseList;
         cardViewList = new ArrayList<>();
-        localBroadcastManager = LocalBroadcastManager.getInstance(context);
     }
 
 
@@ -64,10 +62,8 @@ public class MySalonAdapter extends RecyclerView.Adapter<MySalonAdapter.MyViewHo
              }
              holder.card_salon.setCardBackgroundColor(context.getResources().getColor(android.R.color.holo_orange_dark));
 
-          Intent intent = new Intent(Common.KEY_ENABLE_BUTTON_NEXT);
-          intent.putExtra(Common.KEY_SALON_STORE, courseList.get(pos));
-          intent.putExtra(Common.KEY_STEP, 1);
-          localBroadcastManager.sendBroadcast(intent);
+
+             EventBus.getDefault().postSticky(new EnableNextButton(1, courseList.get(pos)));
 
          }
      });

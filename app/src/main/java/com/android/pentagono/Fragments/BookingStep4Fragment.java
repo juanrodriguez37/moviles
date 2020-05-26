@@ -1,12 +1,9 @@
 package com.android.pentagono.Fragments;
 
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -22,10 +19,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.android.pentagono.Common.Common;
 import com.android.pentagono.Model.BookingInformation;
+import com.android.pentagono.Model.EventBus.ConfirmBookingEvent;
 import com.android.pentagono.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -36,6 +33,10 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -48,12 +49,12 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import dmax.dialog.SpotsDialog;
+import io.paperdb.Paper;
 
 public class BookingStep4Fragment extends Fragment {
 
 
     SimpleDateFormat simpleDateFormat;
-    LocalBroadcastManager localBroadcastManager;
 
     AlertDialog dialog;
 
@@ -89,7 +90,8 @@ public class BookingStep4Fragment extends Fragment {
         Timestamp timestamp = new Timestamp(bookingDateWithourHouse.getTime());
 
 
-        BookingInformation bookingInformation = new BookingInformation();
+        final BookingInformation bookingInformation = new BookingInformation();
+        bookingInformation.setCourse(Common.subject);
         bookingInformation.setTimestamp(timestamp);
         bookingInformation.setBarberid(Common.currentProfesor.getBarberId());
         bookingInformation.setBarberName(Common.currentProfesor.getName());
@@ -139,7 +141,16 @@ public class BookingStep4Fragment extends Fragment {
                 .document("Jmf3G610qtmLMxCW2Wde")
                 .collection("bookings");
 
-        userbooking.whereEqualTo("done",false)
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DATE,0);
+        calendar.set(Calendar.HOUR_OF_DAY,0);
+        calendar.set(Calendar.MINUTE,0);
+
+        Timestamp toDayTimeStamp = new Timestamp(calendar.getTime());
+
+        userbooking.whereGreaterThanOrEqualTo("timestamp",toDayTimeStamp)
+                .whereEqualTo("done",false)
+                .limit(1)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -158,7 +169,7 @@ public class BookingStep4Fragment extends Fragment {
 
                                             addToCalendar(Common.bookingDate,
                                                Common.convertTimeSlotToString(Common.currentTimeSlot));
-                                            resetStaticData();
+
                                             getActivity().finish();
                                             Toast.makeText(getContext(),"Thank you for using our services",Toast.LENGTH_SHORT).show();
 
@@ -180,7 +191,6 @@ public class BookingStep4Fragment extends Fragment {
                             {
                                 dialog.dismiss();
                             }
-                            resetStaticData();
                             getActivity().finish();
                             Toast.makeText(getContext(),"Thank you for using our services",Toast.LENGTH_SHORT).show();
 
@@ -257,7 +267,10 @@ public class BookingStep4Fragment extends Fragment {
             else
                  calendars = Uri.parse("content://calendar/events");
 
-            getActivity().getContentResolver().insert(calendars,event);
+           Uri uri_save = getActivity().getContentResolver().insert(calendars,event);
+           Paper.init(getActivity());
+           Paper.book().write(Common.EVENT_URI_CACHE,uri_save.toString());
+
 
 
         } catch (ParseException e) {
@@ -302,12 +315,32 @@ public class BookingStep4Fragment extends Fragment {
 
     Unbinder unbinder;
 
-    BroadcastReceiver confirmBookingReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+
+    }
+
+    @Subscribe(sticky = true,threadMode = ThreadMode.MAIN)
+    public void setDataBooking(ConfirmBookingEvent event)
+    {
+        if(event.isConfirm())
+        {
             setData();
         }
-    };
+    }
+
+
 
     private void setData() {
         txt_booking_profesor_text.setText((Common.currentProfesor.getName()));
@@ -335,16 +368,12 @@ public class BookingStep4Fragment extends Fragment {
         super.onCreate(savedInstanceState);
         simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
-        localBroadcastManager = LocalBroadcastManager.getInstance(getContext());
-        localBroadcastManager.registerReceiver(confirmBookingReceiver,
-                new IntentFilter(Common.KEY_CONFIRM_BOOKING));
         dialog = new SpotsDialog.Builder().setContext(getContext()).setCancelable(false)
                 .build();
     }
 
     @Override
     public void onDestroy() {
-        localBroadcastManager.unregisterReceiver(confirmBookingReceiver);
         super.onDestroy();
     }
 

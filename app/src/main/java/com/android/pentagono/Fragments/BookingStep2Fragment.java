@@ -1,10 +1,5 @@
 package com.android.pentagono.Fragments;
 
-import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,17 +8,17 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.pentagono.Adapter.MyProfesorAdapter;
-import com.android.pentagono.Common.Common;
 import com.android.pentagono.Common.SpacesItemDecoration;
-import com.android.pentagono.Model.Profesor;
+import com.android.pentagono.Model.EventBus.ProfesorDoneEvent;
 import com.android.pentagono.R;
 
-import java.util.ArrayList;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -33,21 +28,31 @@ public class BookingStep2Fragment extends Fragment {
 
     static BookingStep2Fragment instance;
     Unbinder unbinder;
-    LocalBroadcastManager localBroadcastManager;
 
     @BindView(R.id.recycler_profesor)
     RecyclerView recyclerProfesor;
 
-    private BroadcastReceiver profesorDoneReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            ArrayList<Profesor> profesorArrayList = intent.getParcelableArrayListExtra(Common.KEY_BARBER_LOAD_DONE);
-            MyProfesorAdapter adapter =  new MyProfesorAdapter(getContext(),profesorArrayList);
-            recyclerProfesor.setAdapter(adapter);
 
-        }
-    };
+    @Override
+    public void onStart() {
+       super.onStart();
+       EventBus.getDefault().register(this);
 
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+
+    }
+
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void setProfesorAdapter(ProfesorDoneEvent event)
+    {
+        MyProfesorAdapter adapter =  new MyProfesorAdapter(getContext(),event.getProfesorList());
+        recyclerProfesor.setAdapter(adapter);
+    }
 
 
 
@@ -62,15 +67,9 @@ public class BookingStep2Fragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        localBroadcastManager = LocalBroadcastManager.getInstance(getContext());
-        localBroadcastManager.registerReceiver(profesorDoneReceiver, new IntentFilter(Common.KEY_BARBER_LOAD_DONE));
     }
 
-    @Override
-    public void onDestroy() {
-        localBroadcastManager.unregisterReceiver(profesorDoneReceiver);
-        super.onDestroy();
-    }
+
 
     @Nullable
     @Override

@@ -1,7 +1,11 @@
 package com.android.pentagono;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -21,16 +26,20 @@ import com.android.pentagono.Adapter.LookbookAdapter;
 import com.android.pentagono.Common.Common;
 import com.android.pentagono.Interface.IBannerLoadListener;
 import com.android.pentagono.Interface.IBookingInfoLoadListener;
+import com.android.pentagono.Interface.IBookingInformationChangeListener;
 import com.android.pentagono.Interface.ILookBookLoadListener;
 import com.android.pentagono.Model.Banner;
 import com.android.pentagono.Model.BookingInformation;
 import com.android.pentagono.Service.PiccassoImageLoadingService;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.api.Distribution;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -43,12 +52,15 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import dmax.dialog.SpotsDialog;
+import io.paperdb.Paper;
 import ss.com.bannerslider.Slider;
 
-public class HomeFragment extends Fragment implements IBannerLoadListener, ILookBookLoadListener, IBookingInfoLoadListener {
+public class HomeFragment extends Fragment implements IBannerLoadListener, ILookBookLoadListener, IBookingInfoLoadListener, IBookingInformationChangeListener {
 
 
     private Unbinder unbinder;
+    AlertDialog dialog;
 
     @BindView(R.id.layout_user_information)
     LinearLayout layout_user_information;
@@ -63,8 +75,12 @@ public class HomeFragment extends Fragment implements IBannerLoadListener, ILook
         startActivity(new Intent(getActivity(), BookingActivity.class));
     }
     @OnClick(R.id.card_view_resources)
-            void resources() {
+    void resources() {
         startActivity(new Intent(getActivity(),MainActivity.class));
+    }
+    @OnClick(R.id.card_view_history)
+    void openHistoryActivity() {
+        startActivity(new Intent(getActivity(),HistoryActivity.class));
     }
 
     @BindView(R.id.card_booking_info)
@@ -76,6 +92,112 @@ public class HomeFragment extends Fragment implements IBannerLoadListener, ILook
     @BindView(R.id.txt_time_remain)
     TextView txt_time_remain;
 
+    @OnClick(R.id.btn_delete_booking)
+            void deleteBooking()
+    {
+        deleteBookingFromBarber(false);
+    }
+
+    @OnClick(R.id.btn_change_booking)
+    void changeBooking()
+    {
+        changeBookingFromUser();
+    }
+
+    private void changeBookingFromUser() {
+        androidx.appcompat.app.AlertDialog.Builder confirmDialog = new androidx.appcompat.app.AlertDialog.Builder(getActivity())
+                .setCancelable(false)
+                .setTitle("Hey!")
+                .setMessage("Do you really want to change booking information? \n We will delete your previous booking.")
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                })
+                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        deleteBookingFromBarber(true);
+                    }
+                });
+        confirmDialog.show();
+    }
+
+    private void deleteBookingFromBarber(boolean isChange) {
+        if(Common.currentBooking != null){
+            dialog.show();
+            DocumentReference date = FirebaseFirestore.getInstance()
+                    .collection("courses")
+                    .document(Common.currentBooking.getCourse())
+                    .collection("branch")
+                    .document(Common.currentCourse.getCourse_id())
+                    .collection("profesores")
+                    .document(Common.currentProfesor.getBarberId())
+                    .collection(Common.convertTimestampToStringKey(Common.currentBooking.getTimestamp()))
+                    .document(Common.currentBooking.getSlot().toString());
+
+            date.delete().addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    deleteBookingFromUser(isChange);
+                }
+            });
+        }
+        else
+        {
+            Toast.makeText(getContext(), "Current booking must not be null", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void deleteBookingFromUser(Boolean isChange) {
+        if(!TextUtils.isEmpty(Common.currentBookingId))
+        {
+            DocumentReference userbookinginfo = FirebaseFirestore.getInstance()
+                    .collection("User")
+                    .document("Jmf3G610qtmLMxCW2Wde")
+                    .collection("bookings")
+                    .document(Common.currentBookingId);
+
+            userbookinginfo.delete().addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(getContext(),e.getMessage(),Toast.LENGTH_SHORT).show();
+                }
+            }).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Paper.init(getActivity());
+                    Uri eventUri = Uri.parse(Paper.book().read(Common.EVENT_URI_CACHE).toString());
+                    getActivity().getContentResolver().delete(eventUri,null,null);
+                    Toast.makeText(getActivity(),"Succesfully deleted Booking",Toast.LENGTH_SHORT).show();
+
+                    if(dialog.isShowing())
+                    {
+                        dialog.dismiss();
+                    }
+                }
+            });
+
+            loadUserBooking();
+
+
+            if(isChange) {
+                iBookingInformationChangeListener.onBookingInformationChange();
+                dialog.dismiss();
+            }
+        }
+        else
+        {
+            Toast.makeText(getContext(),"booking info. Cannot be empty", Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+        }
+    }
 
 
     //Firestore
@@ -85,6 +207,7 @@ public class HomeFragment extends Fragment implements IBannerLoadListener, ILook
     IBannerLoadListener iBannerLoadListener;
     ILookBookLoadListener iLookBookLoadListener;
     IBookingInfoLoadListener iBookingInfoLoadListener;
+    IBookingInformationChangeListener iBookingInformationChangeListener;
 
     public HomeFragment() {
 
@@ -127,7 +250,7 @@ public class HomeFragment extends Fragment implements IBannerLoadListener, ILook
                                 for (QueryDocumentSnapshot queryDocumentSnapshot:task.getResult())
                                 {
                                     BookingInformation bookingInformation = queryDocumentSnapshot.toObject(BookingInformation.class);
-                                iBookingInfoLoadListener.OnBookingInfoLoadSuccess(bookingInformation);
+                                iBookingInfoLoadListener.OnBookingInfoLoadSuccess(bookingInformation, queryDocumentSnapshot.getId());
                                 break;
                                 }
                             }
@@ -145,16 +268,25 @@ public class HomeFragment extends Fragment implements IBannerLoadListener, ILook
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        dialog = new SpotsDialog.Builder().setContext(getContext()).setCancelable(false).build();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home,container,false );
         unbinder = ButterKnife.bind(this,view);
 
         //Init
+
         Slider.init(new PiccassoImageLoadingService());
         iBannerLoadListener = this;
         iLookBookLoadListener = this;
         iBookingInfoLoadListener = this;
+        iBookingInformationChangeListener = this;
         loadBanner();
         loadLookBook();
         loadUserBooking();
@@ -249,8 +381,10 @@ public class HomeFragment extends Fragment implements IBannerLoadListener, ILook
     }
 
     @Override
-    public void OnBookingInfoLoadSuccess(BookingInformation bookingInformation) {
+    public void OnBookingInfoLoadSuccess(BookingInformation bookingInformation,String bookingId) {
 
+        Common.currentBooking = bookingInformation;
+        Common.currentBookingId = bookingId;
         txt_salon_name.setText(bookingInformation.getBarberName());
         txt_time.setText(bookingInformation.getTime());
         String dateRemain = DateUtils.getRelativeTimeSpanString(
@@ -266,5 +400,10 @@ public class HomeFragment extends Fragment implements IBannerLoadListener, ILook
     public void onBookingInfoLoadFailed(String message) {
 
         Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onBookingInformationChange() {
+    startActivity(new Intent(getActivity(),BookingActivity.class));
     }
 }

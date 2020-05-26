@@ -30,6 +30,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.jaredrummler.materialspinner.MaterialSpinner;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import butterknife.BindView;
@@ -81,8 +82,17 @@ public class BookingStep1Fragment extends Fragment implements IAllSalonLoadListe
         unbinder = ButterKnife.bind(this, itemView);
         initView();
         loadAllSalon();
+        resetStaticData();
         return itemView;
 
+    }
+
+    private void resetStaticData() {
+        Common.step = 0;
+        Common.currentTimeSlot= -1;
+        Common.currentCourse = null;
+        Common.currentProfesor = null;
+        Common.bookingDate.add(Calendar.DATE,0);
     }
 
     private void initView() {

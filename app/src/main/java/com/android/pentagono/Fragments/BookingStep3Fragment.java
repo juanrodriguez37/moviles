@@ -1,10 +1,6 @@
 package com.android.pentagono.Fragments;
 
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +10,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,6 +17,7 @@ import com.android.pentagono.Adapter.MyTimeSlotAdapter;
 import com.android.pentagono.Common.Common;
 import com.android.pentagono.Common.SpacesItemDecoration;
 import com.android.pentagono.Interface.ITimeSlotLoadListener;
+import com.android.pentagono.Model.EventBus.DisplayTimeSlotEvent;
 import com.android.pentagono.Model.TimeSlot;
 import com.android.pentagono.R;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -33,6 +29,10 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -55,7 +55,6 @@ public class BookingStep3Fragment extends Fragment implements ITimeSlotLoadListe
     AlertDialog dialog;
 
     Unbinder unbinder;
-    LocalBroadcastManager localBroadcastManager;
 
 
     @BindView(R.id.recycler_time_slot)
@@ -63,14 +62,34 @@ public class BookingStep3Fragment extends Fragment implements ITimeSlotLoadListe
     @BindView(R.id.calendar_view)
     HorizontalCalendarView horizontalCalendarView;
     SimpleDateFormat simpleDateFormat;
-    BroadcastReceiver displayTimeSlot = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
+
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+
+    }
+
+    @Subscribe(sticky = true,threadMode = ThreadMode.MAIN)
+    public void loadAllTimeSlotAvailable(DisplayTimeSlotEvent event)
+    {
+        if(event.isDisplay())
+        {
             Calendar date = Calendar.getInstance();
             date.add(Calendar.DATE,0);
             loadAvailableTimeSlotOfBarber(Common.currentProfesor.getBarberId(),simpleDateFormat.format(date.getTime()));
         }
-    };
+
+    }
 
     private void loadAvailableTimeSlotOfBarber(String barberId, String format) {
         // /courses/apo/branch/0SNfqvPbqbIDcqK5DDMx/profesores/7DAnIMh2LlDpOTHwuzi6
@@ -151,19 +170,12 @@ public class BookingStep3Fragment extends Fragment implements ITimeSlotLoadListe
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         iTimeSlotLoadListener = this;
-        localBroadcastManager = LocalBroadcastManager.getInstance(getContext());
-        localBroadcastManager.registerReceiver(displayTimeSlot,new IntentFilter(Common.KEY_DISPLAY_TIME_SLOT));
         simpleDateFormat = new SimpleDateFormat("dd_MM_yyyy");
         dialog = new SpotsDialog.Builder().setContext(getContext()).setCancelable(false).build();
 
 
 
 
-    }
-    @Override
-    public void onDestroy() {
-        localBroadcastManager.unregisterReceiver(displayTimeSlot);
-        super.onDestroy();
     }
 
 

@@ -1,10 +1,11 @@
 package com.android.pentagono.Model;
 
+
 import com.google.firebase.Timestamp;
 
 public class BookingInformation {
 
-    private String customerName, customerPhone, time, barberid,
+    private String course,customerName, customerPhone, time, barberid,
     barberName,salonId, salonName, salonAddress;
     private Long slot;
     private Timestamp timestamp;
@@ -23,6 +24,14 @@ public class BookingInformation {
         this.salonName = salonName;
         this.salonAddress = salonAddress;
         this.slot = slot;
+    }
+
+    public String getCourse() {
+        return course;
+    }
+
+    public void setCourse(String course) {
+        this.course = course;
     }
 
     public String getCustomerName() {

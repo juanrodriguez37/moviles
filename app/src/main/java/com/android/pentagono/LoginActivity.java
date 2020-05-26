@@ -28,6 +28,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import com.newrelic.agent.android.NewRelic;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
@@ -46,6 +47,9 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login);
+        ButterKnife.bind(LoginActivity.this);
+
         Dexter.withActivity(this).withPermissions(new String[]{
                 Manifest.permission.READ_CALENDAR,
                 Manifest.permission.WRITE_CALENDAR
@@ -53,8 +57,8 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onPermissionsChecked(MultiplePermissionsReport report) {
 
-                setContentView(R.layout.activity_login);
-                ButterKnife.bind(LoginActivity.this);
+
+
 
             }
 
@@ -63,9 +67,6 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         }).check();
-
-
-
 
         _loginButton.setOnClickListener(new View.OnClickListener() {
 
@@ -86,6 +87,10 @@ public class LoginActivity extends AppCompatActivity {
                 overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
             }
         });
+
+        NewRelic.withApplicationToken(
+                "AA49845b79c8d4daba950ae43b06945025eb4e6074-NRMA"
+        ).start(this.getApplication());
     }
 
     public void login() {
