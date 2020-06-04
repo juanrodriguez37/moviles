@@ -95,6 +95,10 @@ public class HomeFragment extends Fragment implements IBannerLoadListener, ILook
     void openHistoryActivity() {
         startActivity(new Intent(getActivity(),HistoryActivity.class));
     }
+    @OnClick(R.id.card_view_chat)
+    void openChatActivity() {
+        startActivity(new Intent(getActivity(),chatbotActivity.class));
+    }
 
     @BindView(R.id.card_booking_info)
     CardView card_booking_info;
