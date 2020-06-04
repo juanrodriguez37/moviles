@@ -7,9 +7,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,6 +32,7 @@ import com.android.pentagono.Interface.IBookingInformationChangeListener;
 import com.android.pentagono.Interface.ILookBookLoadListener;
 import com.android.pentagono.Model.Banner;
 import com.android.pentagono.Model.BookingInformation;
+import com.android.pentagono.Model.User;
 import com.android.pentagono.Service.PiccassoImageLoadingService;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -37,10 +40,13 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.api.Distribution;
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -61,7 +67,14 @@ public class HomeFragment extends Fragment implements IBannerLoadListener, ILook
 
     private Unbinder unbinder;
     AlertDialog dialog;
+    CollectionReference userRef;
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
+    private User cUser;
 
+
+    @BindView(R.id.txt_member_type)
+    TextView txt_user_department;
     @BindView(R.id.layout_user_information)
     LinearLayout layout_user_information;
     @BindView(R.id.txt_user_name)
@@ -213,6 +226,9 @@ public class HomeFragment extends Fragment implements IBannerLoadListener, ILook
 
         bannerRef = FirebaseFirestore.getInstance().collection("/banner");
         lookbookRef = FirebaseFirestore.getInstance().collection("/books");
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
+
 
     }
 
@@ -278,6 +294,7 @@ public class HomeFragment extends Fragment implements IBannerLoadListener, ILook
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home,container,false );
+
         unbinder = ButterKnife.bind(this,view);
 
         //Init
@@ -290,6 +307,14 @@ public class HomeFragment extends Fragment implements IBannerLoadListener, ILook
         loadBanner();
         loadLookBook();
         loadUserBooking();
+        try {
+            Thread.sleep(0);
+            setUserInformation();
+        }
+        catch (InterruptedException e)
+        {   e.getMessage();
+            e.printStackTrace();
+        }
 
 
         return view;
@@ -321,7 +346,21 @@ public class HomeFragment extends Fragment implements IBannerLoadListener, ILook
 
     private void setUserInformation () {
         layout_user_information.setVisibility(View.VISIBLE);
-        txt_user_name.setText("Juan Manuel Rodriguez");
+
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        Log.d("settings",currentUser.getEmail());
+        DocumentReference docRef = db.collection("estudiantes").document(currentUser.getEmail());
+        Log.d("settings",docRef.getId());
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                User city = documentSnapshot.toObject(User.class);
+                txt_user_name.setText(city.getName());
+                txt_user_department.setText(city.getDepartment());
+            }
+        });
+
+
     }
 
 

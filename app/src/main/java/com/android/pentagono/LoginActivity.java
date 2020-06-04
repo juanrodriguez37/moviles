@@ -33,6 +33,8 @@ import com.newrelic.agent.android.NewRelic;
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
+    private static final int APP_REQUEST_CODE = 9511;
+
     private FirebaseAuth mAuth;
 
     @BindView(R.id.input_email)
