@@ -14,6 +14,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.android.pentagono.Common.AppStatus;
+import com.android.pentagono.Common.Common;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -46,11 +48,14 @@ public class LoginActivity extends AppCompatActivity {
     @BindView(R.id.link_signup)
     TextView _signupLink;
 
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         ButterKnife.bind(LoginActivity.this);
+        Common.setScreen_step(0);
 
         Dexter.withActivity(this).withPermissions(new String[]{
                 Manifest.permission.READ_CALENDAR,
@@ -70,11 +75,22 @@ public class LoginActivity extends AppCompatActivity {
             }
         }).check();
 
+
         _loginButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                login();
+                if (AppStatus.getInstance(getApplicationContext()).isOnline()) {
+
+                    login();
+
+                } else {
+
+                    Toast.makeText(getApplicationContext(),"You are  offline, please check your connection",Toast.LENGTH_LONG).show();
+                    startActivity(new Intent(getApplicationContext(),OfflineActivity.class));
+                }
+
+
             }
         });
 

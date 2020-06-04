@@ -1,6 +1,11 @@
 package com.android.pentagono.Common;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+
+import androidx.core.content.ContextCompat;
 
 import com.android.pentagono.Model.BookingInformation;
 import com.android.pentagono.Model.Course;
@@ -39,6 +44,7 @@ public class Common {
     public static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd_MM_yyyy");
     public static BookingInformation currentBooking;
     public static String currentBookingId = "";
+    public static  int screen_step = -1;
 
     public static String convertTimeSlotToString(int i) {
         switch (i)
@@ -71,4 +77,11 @@ public class Common {
         return simpleDateFormat.format(date);
 
     }
+
+    public static void setScreen_step(int step)
+    {
+        screen_step = step;
+    }
+
+
 }

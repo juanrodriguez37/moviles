@@ -11,7 +11,7 @@
     <LinearLayout
         android:id="@+id/layout_user_information"
         android:layout_width="match_parent"
-        android:layout_height="78dp"
+        android:layout_height="90dp"
         android:background="@color/black"
 
         android:padding="8dp"
@@ -47,6 +47,15 @@
                 android:text="Student"
                 android:textColor="@android:color/white"
                 android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/log_out"
+                android:text="log out"
+                android:textStyle="italic"
+                android:textColor="@android:color/white"
+                android:textSize="12sp" />
 
 
 

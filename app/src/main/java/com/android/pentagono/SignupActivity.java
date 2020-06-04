@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.android.pentagono.Common.AppStatus;
 import com.android.pentagono.Model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -71,7 +72,17 @@ public class SignupActivity extends AppCompatActivity {
         _signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                signup();
+                if (AppStatus.getInstance(getApplicationContext()).isOnline()) {
+
+                    signup();
+
+                } else {
+
+                    Toast.makeText(getApplicationContext(),"You are  offline, please check your connection",Toast.LENGTH_LONG).show();
+                    startActivity(new Intent(getApplicationContext(),OfflineActivity.class));
+                }
+
+
             }
         });
 

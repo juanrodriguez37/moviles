@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.pentagono.Adapter.HomeSliderAdapter;
+import com.android.pentagono.Common.Common;
 import com.android.pentagono.Fragments.ShoppingFragment;
 import com.android.pentagono.Interface.IBannerLoadListener;
 import com.android.pentagono.Interface.ILookBookLoadListener;
@@ -88,6 +89,7 @@ public class HomeActivity extends AppCompatActivity  {
     mAuth = FirebaseAuth.getInstance();
     userRef = FirebaseFirestore.getInstance().collection("User");
     db = FirebaseFirestore.getInstance();
+    Common.setScreen_step(1);
 
 
      //View

@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.pentagono.Adapter.HomeSliderAdapter;
 import com.android.pentagono.Adapter.LookbookAdapter;
+import com.android.pentagono.Common.AppStatus;
 import com.android.pentagono.Common.Common;
 import com.android.pentagono.Interface.IBannerLoadListener;
 import com.android.pentagono.Interface.IBookingInfoLoadListener;
@@ -85,19 +86,57 @@ public class HomeFragment extends Fragment implements IBannerLoadListener, ILook
     RecyclerView recycler_look_book;
     @OnClick(R.id.card_view_booking)
     void booking() {
-        startActivity(new Intent(getActivity(), BookingActivity.class));
+        if (AppStatus.getInstance(getContext()).isOnline()) {
+
+            startActivity(new Intent(getActivity(), BookingActivity.class));
+
+        } else {
+
+            Toast.makeText(getContext(),"You are  offline, please check your connection",Toast.LENGTH_LONG).show();
+            startActivity(new Intent(getActivity(),OfflineActivity.class));
+        }
+
     }
     @OnClick(R.id.card_view_resources)
     void resources() {
-        startActivity(new Intent(getActivity(),MainActivity.class));
+
+        if (AppStatus.getInstance(getContext()).isOnline()) {
+
+            startActivity(new Intent(getActivity(),MainActivity.class));
+
+        } else {
+
+            Toast.makeText(getContext(),"You are  offline, please check your connection",Toast.LENGTH_LONG).show();
+            startActivity(new Intent(getActivity(),OfflineActivity.class));
+        }
+
     }
     @OnClick(R.id.card_view_history)
     void openHistoryActivity() {
-        startActivity(new Intent(getActivity(),HistoryActivity.class));
+        if (AppStatus.getInstance(getContext()).isOnline()) {
+
+            startActivity(new Intent(getActivity(),HistoryActivity.class));
+
+        } else {
+
+            Toast.makeText(getContext(),"You are  offline, please check your connection",Toast.LENGTH_LONG).show();
+            startActivity(new Intent(getActivity(),OfflineActivity.class));
+        }
+
     }
     @OnClick(R.id.card_view_chat)
     void openChatActivity() {
-        startActivity(new Intent(getActivity(),chatbotActivity.class));
+
+        if (AppStatus.getInstance(getContext()).isOnline()) {
+
+            startActivity(new Intent(getActivity(),chatbotActivity.class));
+
+        } else {
+
+            Toast.makeText(getContext(),"You are  offline, please check your connection",Toast.LENGTH_LONG).show();
+            startActivity(new Intent(getActivity(),OfflineActivity.class));
+        }
+
     }
 
     @BindView(R.id.card_booking_info)
@@ -119,6 +158,16 @@ public class HomeFragment extends Fragment implements IBannerLoadListener, ILook
     void changeBooking()
     {
         changeBookingFromUser();
+    }
+
+    @OnClick(R.id.log_out)
+    void logOut()
+    {
+        mAuth.signOut();
+        Common.setScreen_step(-1);
+        Toast.makeText(getActivity(), "Succesfully Logged Out", Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(getActivity(),LoginActivity.class));
+
     }
 
     private void changeBookingFromUser() {
