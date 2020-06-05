@@ -29,6 +29,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -55,6 +56,7 @@ public class BookingStep4Fragment extends Fragment {
 
 
     SimpleDateFormat simpleDateFormat;
+    FirebaseAuth mauth;
 
     AlertDialog dialog;
 
@@ -137,8 +139,8 @@ public class BookingStep4Fragment extends Fragment {
     private void addToUserBooking(BookingInformation bookingInformation) {
 
         CollectionReference userbooking = FirebaseFirestore.getInstance()
-                .collection("User")
-                .document("Jmf3G610qtmLMxCW2Wde")
+                .collection("estudiantes")
+                .document(mauth.getCurrentUser().getEmail())
                 .collection("bookings");
 
         Calendar calendar = Calendar.getInstance();
@@ -149,7 +151,7 @@ public class BookingStep4Fragment extends Fragment {
         Timestamp toDayTimeStamp = new Timestamp(calendar.getTime());
 
         userbooking.whereGreaterThanOrEqualTo("timestamp",toDayTimeStamp)
-                .whereEqualTo("done",false)
+                .whereEqualTo("done", true)
                 .limit(1)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -320,6 +322,7 @@ public class BookingStep4Fragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+        mauth = FirebaseAuth.getInstance();
         EventBus.getDefault().register(this);
 
     }

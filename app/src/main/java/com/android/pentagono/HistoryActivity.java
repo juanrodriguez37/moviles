@@ -20,6 +20,7 @@ import com.android.pentagono.Model.EventBus.UserBookingLoadEvent;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -45,6 +46,7 @@ public class HistoryActivity extends AppCompatActivity {
     RecyclerView recycler_history;
     @BindView(R.id.txt_history)
     TextView txt_history;
+    FirebaseAuth mAuth;
 
     AlertDialog dialog;
 
@@ -52,6 +54,7 @@ public class HistoryActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
+        mAuth = FirebaseAuth.getInstance();
 
         ButterKnife.bind(this);
         init();
@@ -80,8 +83,8 @@ public class HistoryActivity extends AppCompatActivity {
 
     private void loadUserBookingInformation() {
         CollectionReference userBooking = FirebaseFirestore.getInstance()
-                .collection("User")
-                .document("Jmf3G610qtmLMxCW2Wde")
+                .collection("estudiantes")
+                .document(mAuth.getCurrentUser().getEmail())
                 .collection("bookings");
 
         userBooking

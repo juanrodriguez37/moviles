@@ -219,7 +219,7 @@ public class HomeFragment extends Fragment implements IBannerLoadListener, ILook
         {
             DocumentReference userbookinginfo = FirebaseFirestore.getInstance()
                     .collection("User")
-                    .document("Jmf3G610qtmLMxCW2Wde")
+                    .document(mAuth.getCurrentUser().getEmail())
                     .collection("bookings")
                     .document(Common.currentBookingId);
 
@@ -286,8 +286,8 @@ public class HomeFragment extends Fragment implements IBannerLoadListener, ILook
 
     private void loadUserBooking() {
         CollectionReference userBooking  = FirebaseFirestore.getInstance()
-                .collection("User")
-                .document("Jmf3G610qtmLMxCW2Wde")
+                .collection("estudiantes")
+                .document(mAuth.getCurrentUser().getEmail())
                 .collection("bookings");
 
         Calendar calendar = Calendar.getInstance();
