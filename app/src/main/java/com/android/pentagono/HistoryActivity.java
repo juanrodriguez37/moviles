@@ -1,23 +1,24 @@
 package com.android.pentagono;
 
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.os.Bundle;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.AlertDialog;
-import android.os.Bundle;
-import android.util.EventLog;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.android.pentagono.Adapter.MyHistoryAdapter;
+import com.android.pentagono.Common.AppStatus;
+import com.android.pentagono.Common.Common;
 import com.android.pentagono.Model.BookingInformation;
 import com.android.pentagono.Model.EventBus.UserBookingLoadEvent;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -56,8 +57,24 @@ public class HistoryActivity extends AppCompatActivity {
         init();
         initView();
 
-        loadUserBookingInformation();
+        if (AppStatus.getInstance(getApplicationContext()).isOnline()) {
 
+            loadUserBookingInformation();
+        } else {
+            if (Common.user_bookings.isEmpty()) {
+                Toast.makeText(getApplicationContext(), "You are  offline, please check your connection", Toast.LENGTH_LONG).show();
+                startActivity(new Intent(getApplicationContext(), OfflineActivity.class));
+            } else {
+                loadWithoutConnection();
+            }
+        }
+
+
+    }
+
+    private void loadWithoutConnection() {
+        EventBus.getDefault().post(new UserBookingLoadEvent(true, Common.user_bookings));
+        displayData(new UserBookingLoadEvent(true, Common.user_bookings));
 
     }
 
@@ -87,7 +104,7 @@ public class HistoryActivity extends AppCompatActivity {
                         BookingInformation bookingInformation = userBookingSnapShot.toObject(BookingInformation.class);
                         bookingInformationList.add(bookingInformation);
                     }
-
+                    Common.setArrayHistoric(bookingInformationList);
                     EventBus.getDefault().post(new UserBookingLoadEvent(true,bookingInformationList));
                 }
             }

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@drawable/background"
+    android:background="@drawable/lines"
     android:fitsSystemWindows="true">
 
     <LinearLayout
@@ -15,12 +15,17 @@
         android:paddingLeft="24dp"
         android:paddingRight="24dp">
 
-        <ImageView android:src="@drawable/logo"
-            android:layout_width="wrap_content"
-            android:layout_height="72dp"
-            android:layout_marginBottom="24dp"
-            android:layout_gravity="center_horizontal"
-            android:contentDescription="@string/logo" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:background="@color/tomato"
+            android:text="SIGN UP"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="23dp"
+            android:textStyle="bold" />
+
 
         <!-- Name Label -->
         <com.google.android.material.textfield.TextInputLayout
@@ -34,6 +39,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPersonName"
+          android:background="@color/tomato"
                 android:hint="Name"
                 android:autofillHints=""
                 tools:ignore="HardcodedText" />
@@ -50,6 +56,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textAutoCorrect"
+                android:background="@color/tomato"
                 android:hint="Gender"
                 android:autofillHints="M/F"
                 tools:ignore="HardcodedText" />
@@ -65,6 +72,7 @@
             <EditText android:id="@+id/input_semester"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/tomato"
                 android:inputType="number"
                 android:hint="Semester (number)"
                 android:autofillHints=""
@@ -78,6 +86,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp">
             <EditText android:id="@+id/input_uniandes_code"
+                android:background="@color/tomato"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="number"
@@ -95,6 +104,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp">
             <EditText android:id="@+id/input_email"
+                android:background="@color/tomato"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textEmailAddress"
@@ -113,6 +123,7 @@
             <EditText android:id="@+id/input_department"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/tomato"
                 android:inputType="textCapCharacters"
                 android:hint="Department"
                 tools:ignore="HardcodedText"
@@ -128,6 +139,7 @@
             <EditText android:id="@+id/input_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/tomato"
                 android:inputType="textPassword"
                 android:hint="Password"
                 tools:ignore="HardcodedText"
@@ -141,6 +153,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp">
             <EditText android:id="@+id/input_reEnterPassword"
+                android:background="@color/tomato"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
@@ -157,6 +170,8 @@
             android:layout_marginTop="24dp"
             android:layout_marginBottom="24dp"
             android:padding="12dp"
+            android:background="@color/tomato"
+            android:textColor="@color/white"
             android:text="Create Account"
             tools:ignore="HardcodedText" />
 
@@ -165,6 +180,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
             android:text="@string/already_a_member_login"
+            android:background="@color/transparent"
+            android:textColor="@color/tomato"
             android:gravity="center"
             android:textSize="16sp"/>
 

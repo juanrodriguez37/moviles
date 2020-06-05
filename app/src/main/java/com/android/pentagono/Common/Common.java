@@ -1,24 +1,16 @@
 package com.android.pentagono.Common;
 
-import android.content.Context;
-import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-
-import androidx.core.content.ContextCompat;
-
 import com.android.pentagono.Model.BookingInformation;
 import com.android.pentagono.Model.Course;
 import com.android.pentagono.Model.Profesor;
-import com.android.pentagono.Model.TimeSlot;
 import com.android.pentagono.Model.User;
 import com.google.firebase.Timestamp;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-
-import io.paperdb.Book;
+import java.util.List;
 
 
 public class Common {
@@ -45,6 +37,7 @@ public class Common {
     public static BookingInformation currentBooking;
     public static String currentBookingId = "";
     public static  int screen_step = -1;
+    public static List<BookingInformation> user_bookings = new ArrayList<>();
 
     public static String convertTimeSlotToString(int i) {
         switch (i)
@@ -81,6 +74,10 @@ public class Common {
     public static void setScreen_step(int step)
     {
         screen_step = step;
+    }
+
+    public static void setArrayHistoric(List<BookingInformation> bookingInformations) {
+        user_bookings = bookingInformations;
     }
 
 

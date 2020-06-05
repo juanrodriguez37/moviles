@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background"
+    android:background="@drawable/lines"
     tools:context=".BookingActivity">
 
     <com.shuhart.stepview.StepView
@@ -13,6 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="16dp"
+        android:background="@color/transparent"
         app:sv_animationType="None"
         app:sv_stepPadding="12dp"
         app:sv_selectedCircleColor="@color/cardview_dark_background"

@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,7 +38,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.api.Distribution;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -47,7 +45,6 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -113,15 +110,11 @@ public class HomeFragment extends Fragment implements IBannerLoadListener, ILook
     }
     @OnClick(R.id.card_view_history)
     void openHistoryActivity() {
-        if (AppStatus.getInstance(getContext()).isOnline()) {
 
-            startActivity(new Intent(getActivity(),HistoryActivity.class));
 
-        } else {
+        startActivity(new Intent(getActivity(),HistoryActivity.class));
 
-            Toast.makeText(getContext(),"You are  offline, please check your connection",Toast.LENGTH_LONG).show();
-            startActivity(new Intent(getActivity(),OfflineActivity.class));
-        }
+
 
     }
     @OnClick(R.id.card_view_chat)

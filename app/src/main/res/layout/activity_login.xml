@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@drawable/background"
+    android:background="@drawable/lines"
     android:fitsSystemWindows="true">
 
     <LinearLayout
@@ -14,25 +14,21 @@
         android:paddingLeft="24dp"
         android:paddingRight="24dp">
 
-        <ImageView android:src="@drawable/logo"
-            android:layout_width="wrap_content"
-            android:layout_height="72dp"
-            android:layout_marginBottom="24dp"
-            android:layout_gravity="center_horizontal"
-            android:contentDescription="@string/todo" />
-
         <!--  Email Label -->
+
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="160dp"
             android:layout_marginBottom="8dp">
             <EditText android:id="@+id/input_email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/tomato"
                 android:inputType="textEmailAddress"
                 android:hint="Email"
+                android:textColor="@color/black"
                 tools:ignore="HardcodedText"
                 android:autofillHints="" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -45,6 +41,7 @@
             android:layout_marginBottom="8dp">
             <EditText android:id="@+id/input_password"
                 android:layout_width="match_parent"
+                android:background="@color/tomato"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
                 android:hint="Password"
@@ -60,6 +57,8 @@
             android:layout_marginBottom="24dp"
             android:padding="12dp"
             android:text="Login"
+            android:background="@color/tomato"
+            android:textColor="@color/white"
             tools:ignore="HardcodedText" />
 
         <TextView android:id="@+id/link_signup"
@@ -68,6 +67,8 @@
             android:layout_marginBottom="24dp"
             android:text="@string/no_account_yet_create_one"
             android:gravity="center"
+            android:background="@color/white"
+            android:textColor="@color/tomato"
             android:textSize="16sp"/>
 
     </LinearLayout>

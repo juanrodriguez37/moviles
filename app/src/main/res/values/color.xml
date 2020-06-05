@@ -18,6 +18,7 @@
   <color name="corn">#FFEC51</color>
   <color name="pink">#FF6392</color>
   <color name="turquesa">#79C7C5</color>
+    <color name="transparent">#F0F8FF</color>
 
 
 </resources>
