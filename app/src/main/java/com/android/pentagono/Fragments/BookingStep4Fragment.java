@@ -24,16 +24,13 @@ import com.android.pentagono.Common.Common;
 import com.android.pentagono.Model.BookingInformation;
 import com.android.pentagono.Model.EventBus.ConfirmBookingEvent;
 import com.android.pentagono.R;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -102,8 +99,8 @@ public class BookingStep4Fragment extends Fragment {
         //bookingInformation.setCustomerPhone(Common.currentUser.getPhoneNumber());
         bookingInformation.setDone(false);
 
-        bookingInformation.setCustomerName("Student");
-        bookingInformation.setCustomerPhone("+57 3008494164");
+        bookingInformation.setCustomerName(mauth.getCurrentUser().getDisplayName());
+        bookingInformation.setCustomerPhone(mauth.getCurrentUser().getEmail());
         bookingInformation.setSalonId(Common.currentCourse.getCourse_id());
         bookingInformation.setSalonAddress(Common.currentCourse.getAddress());
         bookingInformation.setSalonName(Common.currentCourse.getName());
@@ -150,55 +147,25 @@ public class BookingStep4Fragment extends Fragment {
 
         Timestamp toDayTimeStamp = new Timestamp(calendar.getTime());
 
-        userbooking.whereGreaterThanOrEqualTo("timestamp",toDayTimeStamp)
-                .whereEqualTo("done", true)
-                .limit(1)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        userbooking
+                .document()
+                .set(bookingInformation)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if(task.getResult().isEmpty())
-                        {
-                            userbooking.document()
-                                    .set(bookingInformation)
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            if(dialog.isShowing())
-                                            {
-                                                dialog.dismiss();
-                                            }
-
-                                            addToCalendar(Common.bookingDate,
-                                               Common.convertTimeSlotToString(Common.currentTimeSlot));
-
-                                            getActivity().finish();
-                                            Toast.makeText(getContext(),"Thank you for using our services",Toast.LENGTH_SHORT).show();
-
-                                        }
-                                    }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    if(dialog.isShowing())
-                                    {
-                                        dialog.dismiss();
-                                    }
-                                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                                }
-                            });
+                    public void onSuccess(Void aVoid) {
+                        if (dialog.isShowing()) {
+                            dialog.dismiss();
                         }
-                        else
-                        {
-                            if(dialog.isShowing())
-                            {
-                                dialog.dismiss();
-                            }
-                            getActivity().finish();
-                            Toast.makeText(getContext(),"Thank you for using our services",Toast.LENGTH_SHORT).show();
-
-                        }
+                        addToCalendar(Common.bookingDate, Common.convertTimeSlotToString(Common.currentTimeSlot));
+                        getActivity().finish();
+                        Toast.makeText(getContext(), "Thank you for using our services", Toast.LENGTH_SHORT).show();
                     }
-                });
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d("Settings", "error writting document", e);
+            }
+        });
 
 
     }

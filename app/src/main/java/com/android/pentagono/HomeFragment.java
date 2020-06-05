@@ -295,11 +295,14 @@ public class HomeFragment extends Fragment implements IBannerLoadListener, ILook
         calendar.set(Calendar.HOUR_OF_DAY,0);
         calendar.set(Calendar.MINUTE,0);
 
+        Calendar real = Calendar.getInstance();
+        Timestamp real_timestamp = new Timestamp(real.getTime());
+
+
         Timestamp toDayTimeStamp = new Timestamp(calendar.getTime());
 
         userBooking
-                .whereGreaterThanOrEqualTo("timestamp",toDayTimeStamp)
-                .whereEqualTo("done",false)
+                .whereGreaterThanOrEqualTo("timestamp", real_timestamp)
                 .limit(1)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
